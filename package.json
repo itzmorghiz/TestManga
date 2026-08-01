@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "run-p build:ext dev:web",
+    "tauri": "tauri",
     "dev:web": "vite",
     "build:ext": "vite build --config vite.config.ext.ts --watch",
     "build": "vite build --config vite.config.ext.ts && tsc && vite build",
