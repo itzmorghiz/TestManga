@@ -1,5 +1,0 @@
-{
-  "main": "server/dist/app.cjs",
-  "output": "server/dist/sea-prep.blob",
-  "disableExperimentalSEAWarning": true
-}

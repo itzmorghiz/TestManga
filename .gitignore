@@ -17,3 +17,7 @@ android/.gradle/
 # File di ambiente o locali
 .env
 .DS_Store
+
+package-lock.json
+
+public/sources/
