@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TestManga</string>
+    <string name="title_activity_main">TestManga</string>
+    <string name="package_name">com.itzmorghiz.testmanga</string>
+    <string name="custom_url_scheme">com.itzmorghiz.testmanga</string>
+</resources>

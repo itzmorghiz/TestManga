@@ -1,0 +1,19 @@
+# Dipendenze
+node_modules/
+
+# Build Web e Capacitor
+build/
+www/
+
+# Build Tauri / Rust
+src-tauri/target/
+
+# Xcode e Android Studio build temporanee
+ios/App/build/
+ios/App/Pods/
+android/app/build/
+android/.gradle/
+
+# File di ambiente o locali
+.env
+.DS_Store

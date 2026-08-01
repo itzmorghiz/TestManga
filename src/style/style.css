@@ -1,0 +1,88 @@
+@font-face {
+    font-family: "Google Sans Flex";
+    src: url(./font/GoogleSansFlex.ttf);
+}
+
+body {
+    background-color: var(--md-sys-color-background);
+}
+
+* {
+    color: var(--md-sys-color-on-background);
+    font-family: "Google Sans Flex";
+}
+
+.resultSource {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+	overflow: hidden;
+    overflow-x: auto;
+    gap: 12px;
+	padding: 4pt 10pt;
+	height: 260pt;
+	border-radius: 18px;
+}
+
+.sourceInfo {
+    display: flex;
+    align-items: center; /* Aligns icon and text perfectly along the vertical center */
+    padding: 10pt;
+}
+
+.sourceInfo .sourceIcon {
+    width: 40pt !important;
+    aspect-ratio: 1/1 !important;
+    flex-shrink: 0; /* Prevents icon from shrinking if text gets long */
+}
+
+.sourceInfo .sourceName {
+    margin: 0 0 0 10pt; /* Top, Right, Bottom, Left shorthand */
+    font-weight: bolder;
+    font-size: larger;
+}
+
+.mangaResultEntry {
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: 160pt;
+    height: 240pt;
+    background-color: var(--md-sys-color-primary-container);
+    padding: 8px;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+	padding-bottom: 0;
+}
+
+.mangaResultEntry .cover {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: contain;
+    border-radius: 14px;
+    background-image: var(--bg-url);
+    background-size: cover;
+    background-position: center;
+}
+
+.mangaResultEntry .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--md-sys-color-on-primary-container) !important;
+}
+
+.mangaResultEntry .info .title {
+	box-sizing: border-box;
+    font-size: medium;
+    font-weight: bolder;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-align: center;
+	margin: 6pt;
+}
