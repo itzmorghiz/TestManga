@@ -1,0 +1,153 @@
+name: Build and Release Multiplatform
+
+on:
+  push:
+    tags:
+      - 'v*' # Si attiva quando crei un tag come v1.0.0, v0.1.0, ecc.
+
+jobs:
+  # ------------------------------------------------------------------
+  # JOB 1: Build Tauri Desktop (Windows & macOS)
+  # ------------------------------------------------------------------
+  build-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'windows-latest'
+            args: ''
+          - platform: 'macos-latest'
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo Dependencies
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build Web Assets
+        run: npm run build
+
+      - name: Build Tauri App
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'TestManga ${{ github.ref_name }}'
+          releaseBody: 'Release automatica generata da GitHub Actions.'
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
+
+  # ------------------------------------------------------------------
+  # JOB 2: Build Android (Capacitor APK)
+  # ------------------------------------------------------------------
+  build-android:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build Web App & Sync Capacitor
+        run: |
+          npm run build
+          npx cap sync android
+
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload Android APK to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ------------------------------------------------------------------
+  # JOB 3: Build iOS per SideStore (Capacitor .ipa)
+  # ------------------------------------------------------------------
+  build-ios:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build Web App & Sync Capacitor
+        run: |
+          npm run build
+          npx cap sync ios
+
+      - name: Build iOS Archive (.xcarchive)
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace \
+                     -scheme App \
+                     -configuration Release \
+                     -sdk iphoneos \
+                     -archivePath ios/App/build/App.xcarchive \
+                     CODE_SIGNING_ALLOWED=NO \
+                     CODE_SIGNING_REQUIRED=NO \
+                     clean archive
+
+      - name: Packaging into .ipa for SideStore
+        run: |
+          mkdir -p ios/App/build/Payload
+          cp -r ios/App/build/App.xcarchive/Products/Applications/App.app ios/App/build/Payload/
+          cd ios/App/build
+          zip -r TestManga-sidestore.ipa Payload
+
+      - name: Upload iOS .ipa to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ios/App/build/TestManga-sidestore.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
